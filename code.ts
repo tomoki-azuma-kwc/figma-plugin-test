@@ -37,21 +37,43 @@
 // }
 
 
-
 if (figma.editorType === 'figma') {
   figma.showUI(__html__);
+  let localColorStyles = [];
+  let selectColorStyles = [];
   figma.ui.onmessage =  (msg: {type: string}) => {
     if (msg.type === 'get-colors') {
-      figma.getLocalPaintStylesAsync().then((data) => {
-        console.log(data);
-        const localColorStyles = data.map((object) => {
+      figma.getLocalPaintStylesAsync().then(data => {
+        localColorStyles = data.map(element => {
+          // 選択したフレーム内のカラーと照合するため、idとcolorが必須
           return {
-            name: object.name,
-            color: object.paints[0].color,
+            id: element.id,
+            name: element.name,
+            color: element.paints[0].color,
           };
         });
         console.log(localColorStyles);
       });
+    }
+    if (msg.type === 'check-frame') {
+      // キャンバス上で現在選択中のフレームからカラー情報を取得する
+      figma.currentPage.selection.forEach(frame => {
+        selectColorStyles = frame.children.map(object => {
+          return {
+            frameId: frame.id,
+            id: object.fillStyleId,
+            color: object.fills[0].color,
+          }
+        });
+        // console.log(selectColorStyles);
+      });
+      const alertColors = selectColorStyles.filter(selectColor => {
+        // console.log(selectColor, localColorStyles);
+        return localColorStyles.find(localColor => {
+          return selectColor.id === localColor.id;
+        });
+      });
+      console.log(alertColors);
     }
     // figma.closePlugin();
   };

@@ -27,4 +27,8 @@ document.getElementById('cancel').onclick = () => {
 document.getElementById('getColors').onclick = () => {
   parent.postMessage({ pluginMessage: { type: 'get-colors' } }, '*')
 }
+
+document.getElementById('checkFrame').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'check-frame' } }, '*')
+}
 </script>
